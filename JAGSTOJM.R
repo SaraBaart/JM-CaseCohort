@@ -43,55 +43,47 @@ object_JAGS1$postMeans$shapes <- outI$mean$shapes
 
 
 #---------------------------------------ADD MCMC samples---------------------------------------------------- 
-object_JAGS1$mcmc$betas <- as.matrix(data.frame("(Intercept)" = c(outI$samples[[1]][, "betas[1]"], 
-                                                                 outI$samples[[2]][, "betas[1]"], 
-                                                                 outI$samples[[3]][, "betas[1]"]),  
-                                                "group" = c(outI$samples[[1]][, "betas[2]"], 
-                                                                  outI$samples[[2]][, "betas[2]"], 
-                                                                  outI$samples[[3]][, "betas[2]"]) , 
-                                               "time" = c(outI$samples[[1]][, "betas[3]"], 
-                                                                  outI$samples[[2]][, "betas[3]"], 
-                                                                  outI$samples[[3]][, "betas[3]"]) , 
-                                               "I(time^2)" = c(outI$samples[[1]][, "betas[4]"], 
-                                                               outI$samples[[2]][, "betas[4]"], 
-                                                               outI$samples[[3]][, "betas[4]"])))
+
+listbetas <- paste0("betas[", c(1:ncol(outI$data$X)),"]")
+test <- vector("list", length(listbetas))
+  for (i in 1:length(listbetas)){
+test[[i]]  <- data.frame(x = c(outI$samples[[1]][, listbetas[[i]] ],
+                               outI$samples[[2]][, listbetas[[i]] ],
+                               outI$samples[[3]][, listbetas[[i]] ]))
+}
+   object_JAGS1$mcmc$betas <- as.matrix(as.data.frame(test))
+   colnames(object_JAGS1$mcmc$betas) <-  colnames(outI$data$X)
+
 
 object_JAGS1$mcmc$sigma <- as.matrix(data.frame("sigma" = 1/(sqrt(c(outI$samples[[1]][, "tau"], 
                                                                    outI$samples[[2]][, "tau"], 
                                                                    outI$samples[[3]][, "tau"])))))
 
-object_JAGS1$mcmc$gammas <- as.matrix(data.frame("group" = c(outI$samples[[1]][, "gammas"], 
-                                                                outI$samples[[2]][, "gammas"], 
-                                                                outI$samples[[3]][, "gammas"])))
+listgammas <- paste0("gammas[", c(1:ncol(outI$data$W)),"]")
+test <- vector("list", length(listgammas))
+for (i in 1:length(listgammas)){
+  test[[i]]  <- data.frame(x = c(outI$samples[[1]][, listgammas[[i]] ],
+                                 outI$samples[[2]][, listgammas[[i]] ],
+                                 outI$samples[[3]][, listgammas[[i]] ]))
+}
+object_JAGS1$mcmc$gammas <- as.matrix(as.data.frame(test))
+colnames(object_JAGS1$mcmc$gammas) <-  colnames(outI$data$W)
+
+
 object_JAGS1$mcmc$Dalphas <- NULL
 object_JAGS1$mcmc$shapes <- NULL
-object_JAGS1$mcmc$Bs.gammas <- as.matrix(data.frame("Bs.gammas1" =  c(outI$samples[[1]][, "Bs.gammas[1]"], 
-                                                                     outI$samples[[2]][, "Bs.gammas[1]"], 
-                                                                     outI$samples[[3]][, "Bs.gammas[1]"]), 
-                                                   "Bs.gammas2" =  c(outI$samples[[1]][, "Bs.gammas[2]"], 
-                                                                     outI$samples[[2]][, "Bs.gammas[2]"], 
-                                                                     outI$samples[[3]][, "Bs.gammas[2]"]), 
-                                                   "Bs.gammas3" =  c(outI$samples[[1]][, "Bs.gammas[3]"], 
-                                                                     outI$samples[[2]][, "Bs.gammas[3]"], 
-                                                                     outI$samples[[3]][, "Bs.gammas[3]"]), 
-                                                   "Bs.gammas4" =  c(outI$samples[[1]][, "Bs.gammas[4]"], 
-                                                                     outI$samples[[2]][, "Bs.gammas[4]"], 
-                                                                     outI$samples[[3]][, "Bs.gammas[4]"]), 
-                                                   "Bs.gammas5" =  c(outI$samples[[1]][, "Bs.gammas[5]"], 
-                                                                     outI$samples[[2]][, "Bs.gammas[5]"], 
-                                                                     outI$samples[[3]][, "Bs.gammas[5]"]), 
-                                                   "Bs.gammas6" =  c(outI$samples[[1]][, "Bs.gammas[6]"], 
-                                                                     outI$samples[[2]][, "Bs.gammas[6]"], 
-                                                                     outI$samples[[3]][, "Bs.gammas[6]"]), 
-                                                   "Bs.gammas7" =  c(outI$samples[[1]][, "Bs.gammas[7]"], 
-                                                                     outI$samples[[2]][, "Bs.gammas[7]"], 
-                                                                     outI$samples[[3]][, "Bs.gammas[7]"]), 
-                                                   "Bs.gammas8" =  c(outI$samples[[1]][, "Bs.gammas[8]"], 
-                                                                     outI$samples[[2]][, "Bs.gammas[8]"], 
-                                                                     outI$samples[[3]][, "Bs.gammas[8]"]), 
-                                                   "Bs.gammas9" =  c(outI$samples[[1]][, "Bs.gammas[9]"], 
-                                                                     outI$samples[[2]][, "Bs.gammas[9]"], 
-                                                                     outI$samples[[3]][, "Bs.gammas[9]"])))
+
+ncol(outI$data$W2)
+listBsgammas <- paste0("Bs.gammas[", c(1:ncol(outI$data$W2)),"]")
+test <- vector("list", length(listBsgammas))
+for (i in 1:length(listBsgammas)){
+  test[[i]]  <- data.frame(x = c(outI$samples[[1]][, listBsgammas[[i]] ],
+                                 outI$samples[[2]][, listBsgammas[[i]] ],
+                                 outI$samples[[3]][, listBsgammas[[i]] ]))
+}
+object_JAGS1$mcmc$Bs.gammas <- as.matrix(as.data.frame(test))
+colnames(object_JAGS1$mcmc$Bs.gammas) <-  paste0("Bs.gammas", c(1:ncol(outI$data$W2)))
+
 
 
 
