@@ -120,14 +120,13 @@ names(dat) <- c("time", "group", "id", "y", "Time", "event")
 
 
 # Imitate a case-cohort design
-dat$CC <- 0
-pieces <- split(dat, dat$id)
-samplepieces <- sample(pieces, round(length(pieces)/3), replace=FALSE)
-for(j in 1:length(samplepieces)){ 
-  samplepieces[[j]]$CC <- 1 }
-dat <- do.call(what = rbind, args = modifyList(pieces, samplepieces))
-dat$y2 <- ifelse(dat$event == 0 & dat$CC == 0, NA, dat$y)
-
+sample.ids <- sample(unique(dat$id), replace = FALSE, size = round(0.3333*length(unique(dat$id))))
+event.ids <-  dat$id[ which(dat$event ==1)]
+cc.ids <- unique(c(sample.ids, event.ids) ) 
+dat$y2 <- ifelse(dat$id %in% cc.ids, dat$y, NA)   
+dat$CC <- ifelse(dat$id %in% cc.ids, 1,0) 
+           
+           
 # delete all unused objects
 rm(y, X, Z, id, n, na.ind, long.na.ind, ind, Ctimes, Time, event, W,
    betas, sigma.y, gammas, alpha, eta.t, eta.y, phi, mean.Cens, t.max,
