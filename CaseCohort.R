@@ -13,23 +13,25 @@ library(nlme)
 ####################################
 
 
-# Simulate data with missing biomarker values (y2) fo patients outside the case cohort design
+# Simulate data with missing biomarker values (y2) for patients outside the case cohort design, using the function Simulate.
 data <- Simulate(n = 2000)
 
-# For the longitudinal submodel; plug in the general mean of y2
+# For the longitudinal submodel; plug in the general mean of y2 in the new longitudinal variable y3.
 data$y3 <- ifelse(is.na(data$y2), mean(data$y2, na.rm = TRUE), data$y2)
 
 # Make a short version of the data to fit the survival submodel
 data.id  <- data[!duplicated(data$id),]
 
-# Longitudinal submodel
+# Fit the longitudinal submodel
 lmeObject <- lme(y3 ~ group + time + I(time^2), data = data, 
                  random = list(id = pdDiag(form = ~ time + I(time^2))))
-# Survival submodel
+
+# Fit the survival submodel
 survObject <- coxph(Surv(Time, event) ~ group , data = data.id, x = TRUE)
 
 
-# Obtain elements for JAGS and fit JAGS model
+# Obtain elements needed to fit the joint model with JAGS. 
+# The timeVar is the time variable in the longitudinal submodel.
 Data <- PrepJAGS(survObject, lmeObject, timeVar = "time")
 
 # Replace the longitudinal variable y with the version with missings (y2)
