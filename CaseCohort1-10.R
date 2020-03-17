@@ -1,7 +1,7 @@
 CaseCohort <-function(dat, dat.id, event, id , y){
   #set.seed(24)
   datcc.id <- dat.id
-  datcc.id$sample <- rbinom(nrow(datcc.id), 1, (0.333))
+  datcc.id$sample <- rbinom(nrow(datcc.id), 1, (0.1))
   datcc.id$sample2 <- ifelse(datcc.id[[event]] == 1, 1,
                              ifelse(datcc.id$sample == 1 , 1, 0))
 
