@@ -1,0 +1,43 @@
+
+model {
+           
+           for (i in 1:N) {
+           # Longitudinal Part
+           for (j in offset[i]:(offset[i+1] - 1)) {
+           muy[j] <- inprod(b[i, 1:ncZ], Z[j, 1:ncZ])
+           
+           y[j] ~ dnorm(muy[j], tau)
+           }
+           
+           # Survival Part
+           etaBaseline[i] <- inprod(gammas[1], W[i])
+           log.h0.T[i] <-  inprod(Bs.gammas[1:ncW2], W2[i, 1:ncW2])
+           f.T[i] <- inprod(b[i, 1:ncZ], Ztime[i, 1:ncZ])
+           log.hazard[i] <- log.h0.T[i] + etaBaseline[i] + alphas * f.T[i]
+           for (k in 1:K) {
+           log.h0.s[i, k] <- inprod(Bs.gammas[1:ncW2], W2s[K * (i - 1) + k, 1:ncW2])
+           f.s[i, k] <- inprod(b[i, 1:ncZ], Zs[K*(i - 1) + k, 1:ncZ])
+           SurvLong[i, k] <- wk[k] * exp(log.h0.s[i, k] + alphas * f.s[i, k])
+           }
+           log.survival[i] <- - exp(etaBaseline[i]) * P[i] * sum(SurvLong[i, ])
+           lambda[i] <- C - (event[i] * log.hazard[i]) - log.survival[i]
+           zeros[i] ~ dpois(lambda[i])
+           # Random Effects Part
+
+           mu_b[i, 1] <- betas[1] + betas[4] * W[i]
+           mu_b[i, 2] <- betas[2] 
+           mu_b[i, 3] <- betas[3] 
+           b[i, 1:nb] ~ dmnorm(mu_b[i, ], inv.D[, ])
+           }
+           #  Priors
+           # Longitudinal Part
+           betas[1:ncX] ~ dmnorm(priorMean.betas[], priorTau.betas[, ])
+           tau ~ dgamma(priorA.tau, priorB.tau)
+           # Survival Part
+           gammas[1:ncW] ~ dmnorm(priorMean.gammas[], priorTau.gammas[ ])
+           alphas ~ dnorm(priorMean.alphas, priorTau.alphas)
+           Bs.gammas[1:ncW2] ~ dmnorm(priorMean.Bs.gammas[], priorTau.Bs.gammas[, ])
+           # Random Effects Part
+           inv.D[1:nb, 1:nb] ~ dwish(priorR.D[, ], priorK.D)
+           }
+           
